@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Keuangan</title>
+  <style>
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #f2f6ff, #ffffff);
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #4e73df;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    th {
+      background: #f4f7ff;
+      color: #333;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f9fbff;
+    }
+
+    .totals {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 25px;
+    }
+
+    .card {
+      background: #f8f9fc;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      padding: 15px 25px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      width: 40%;
+    }
+
+    .card h2 {
+      margin: 5px 0;
+      color: #4e73df;
+      font-size: 1.6em;
+    }
+
+    .card p {
+      color: #777;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📊 Laporan Keuangan</h1>
+  </header>
+
+  <main>
+    <table id="data-table">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="totals">
+      <div class="card">
+        <p>Total Pemasukan</p>
+        <h2 id="total-masuk">0</h2>
+      </div>
+      <div class="card">
+        <p>Total Pengeluaran</p>
+        <h2 id="total-keluar">0</h2>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const sheetURL = "https://opensheet.elk.sh/1_t3jXp79HtmKobuKgfhH-N5jpGA0cEdsiIiediqCMhQ/Sheet1";
+
+    fetch(sheetURL)
+      .then(res => res.json())
+      .then(data => {
+        const table = document.getElementById("data-table");
+        const thead = table.querySelector("thead");
+        const tbody = table.querySelector("tbody");
+
+        if (data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='5'>Tidak ada data</td></tr>";
+          return;
+        }
+
+        const headers = Object.keys(data[0]);
+        let headerHTML = "<tr>";
+        headers.forEach(h => headerHTML += `<th>${h}</th>`);
+        headerHTML += "</tr>";
+        thead.innerHTML = headerHTML;
+
+        let totalMasuk = 0, totalKeluar = 0;
+        data.forEach(row => {
+          let tr = "<tr>";
+          headers.forEach(h => tr += `<td>${row[h] || ""}</td>`);
+          tr += "</tr>";
+          tbody.innerHTML += tr;
+
+          totalMasuk += parseFloat(row.Pemasukan || 0);
+          totalKeluar += parseFloat(row.Pengeluaran || 0);
+        });
+
+        document.getElementById("total-masuk").textContent = totalMasuk.toLocaleString("id-ID");
+        document.getElementById("total-keluar").textContent = totalKeluar.toLocaleString("id-ID");
+      })
+      .catch(err => {
+        console.error(err);
+        document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>⚠️ Gagal memuat data dari Google Sheets</h2>";
+      });
+  </script>
+</body>
+</html>
